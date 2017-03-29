@@ -6,7 +6,7 @@ This file creates your application.
 """
 
 from app import app
-from flask import render_template, request, redirect, url_for, jsonify
+from flask import render_template, request, redirect, url_for, jsonify, json
 from bs4 import BeautifulSoup
 import requests
 import urlparse
@@ -19,6 +19,38 @@ import urlparse
 def home():
     """Render website's home page."""
     return render_template('home.html')
+    
+@app.route('/api/thumbnails')
+def url_json():
+    
+    url = "https://www.walmart.com/ip/54649026"
+    result = requests.get(url)
+    soup = BeautifulSoup(result.text, "html.parser")
+    
+    # This will look for a meta tag with the og:image property
+    og_image = (soup.find('meta', property='og:image') or
+                        soup.find('meta', attrs={'name': 'og:image'}))
+    if og_image and og_image['content']:
+        print og_image['content']
+        print ''
+    
+    # This will look for a link tag with a rel attribute set to 'image_src'
+    thumbnail_spec = soup.find('link', rel='image_src')
+    if thumbnail_spec and thumbnail_spec['href']:
+        print thumbnail_spec['href']
+        print ''
+    
+    
+    image = """<img src="%s"><br />"""
+    img_list =[]
+    for img in soup.findAll("img", src=True):
+        img_list+= [str(url+img["src"])]
+    results={ "error":None,
+    "message":"Success", 
+    "thumbnails": img_list}
+    response =app.response_class(response=json.dumps(results),status=200, mimetype='application/json' )
+    return response
+    
 
 
 ###
