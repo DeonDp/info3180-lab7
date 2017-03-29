@@ -26,7 +26,6 @@ def url_json():
     url = "https://www.walmart.com/ip/54649026"
     result = requests.get(url)
     soup = BeautifulSoup(result.text, "html.parser")
-    
     # This will look for a meta tag with the og:image property
     og_image = (soup.find('meta', property='og:image') or
                         soup.find('meta', attrs={'name': 'og:image'}))
@@ -50,9 +49,12 @@ def url_json():
     "thumbnails": img_list}
     response =app.response_class(response=json.dumps(results),status=200, mimetype='application/json' )
     return response
+
+@app.route('/thumbnails/view')
+def view_thumbnails():
+    """Render website's thumbnail page."""
+    return render_template('thumbnails.html')
     
-
-
 ###
 # The functions below should be applicable to all Flask apps.
 ###
